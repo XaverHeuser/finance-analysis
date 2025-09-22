@@ -1,0 +1,1 @@
+"""This file processes an account statement and writes the data into a GSheet."""
