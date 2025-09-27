@@ -84,4 +84,4 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run mypy
-        run: mypy --explicit-package-bases src notebooks
+        run: mypy --explicit-package-bases src
