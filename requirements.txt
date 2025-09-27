@@ -1,5 +1,6 @@
 numpy
 pandas
+matplotlib
 pdfplumber
 google-api-python-client
 gspread
