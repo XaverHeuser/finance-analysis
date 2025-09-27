@@ -17,7 +17,7 @@ def extract_transaction_info(
 
     if transaction_type not in gsheets:
         raise ValueError(f'Unknown transaction type: {transaction_type}')
-    
+
     df = gsheets[transaction_type]
     transaction_value = get_transaction_value(transaction)
     name = transaction[1].strip() if len(transaction) > 1 else 'Monatsabschluss Bank'
@@ -36,7 +36,6 @@ def add_new_row(
     general_account: bool = False,
 ) -> None:
     """Add a new transaction row to the DataFrame."""
-
     new_row_data = [name] + [None] * (len(df.columns) - 1)
     new_row = pd.DataFrame([new_row_data], columns=df.columns)
 

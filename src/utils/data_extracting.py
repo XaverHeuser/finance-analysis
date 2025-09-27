@@ -1,10 +1,11 @@
-"""This module includes function for data extracting from Folder and pdf-Docs"""
+"""This module includes function for data extracting from Folder and pdf-Docs."""
 
 import logging
 from pathlib import Path
 import re
 
 import pdfplumber
+
 
 def get_all_account_statement_files(downloads_path: Path) -> list[Path]:
     """Get all the account statement files from the downloads folder."""
@@ -122,4 +123,3 @@ def get_transaction_value(transaction: list) -> float:
     value_float = float(value.replace('.', '').replace(',', '.'))
 
     return value_float
-
