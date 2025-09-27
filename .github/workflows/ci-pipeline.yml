@@ -1,0 +1,88 @@
+name: Run CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-${{ github.event.pull_request.head.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  ############################
+  # Linting and Formatting
+  ############################
+  lint:
+    name: Linting and Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Dev Dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Ruff Lint
+        uses: astral-sh/ruff-action@v3
+        with:
+          args: check . --output-format=github
+
+      - name: Ruff Format (check only)
+        uses: astral-sh/ruff-action@v3
+        with:
+          args: format . --check --diff
+
+  ########################
+  # Security Scans
+  ########################
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Dev Dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run pip-audit
+        run: pip-audit
+
+      - name: Run Bandit
+        run: bandit -r . --exclude ./tests
+
+  ########################
+  # Type Checking
+  ########################
+  type-check:
+    name: Type Checking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Dev Dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run mypy
+        run: mypy --explicit-package-bases streamlit_app utilities data_automation
+        

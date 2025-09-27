@@ -1,0 +1,29 @@
+line-length = 88
+target-version = 'py39'
+fix = true
+exclude = ['explore.ipynb', 'README.md', 'docs/*' ]
+
+[format]
+quote-style = 'single'
+skip-magic-trailing-comma = true
+
+[lint]
+select = ['E', 'W', 'F', 'C', 'B', 'I', 'N', 'S', 'D', 'UP']
+ignore = ['E501', 'D401', 'D203', 'D417']
+
+[lint.pydocstyle]
+convention = 'pep257'
+
+[lint.per-file-ignores]
+'streamlit_app/tests/*' = ['S101']
+'tests/*' = ['S101']
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.isort]
+known-first-party = ['streamlit_app', 'utilities', 'data_automation']
+combine-as-imports = true
+force-sort-within-sections = true
+lines-after-imports = 2
+split-on-trailing-comma = false
