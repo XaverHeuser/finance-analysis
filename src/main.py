@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import sys
 
+from dotenv import load_dotenv
 import pandas as pd
 
 
@@ -28,7 +29,8 @@ credentials_path = Path('../credentials/cool-plasma-452619-v4-feb20b70d461.json'
 downloads_path = Path.home() / 'Downloads'
 
 client, service = set_up_google_connection(credentials_path)
-SPREADSHEET_ID = '1OnrW1foE-1lOtgfxBv2Y5qqJSDnW4hiYeLpScjgFKxM'
+load_dotenv()
+SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
 
 
 def process_account_statements() -> None:
@@ -61,7 +63,7 @@ def process_account_statements() -> None:
         ####################
         # Open Spreadsheet
         ####################
-        spreadsheet = client.open_by_key(SPREADSHEET_ID)  # TODO: Put in secrets/env
+        spreadsheet = client.open_by_key(SPREADSHEET_ID)
 
         sheet_incomes = spreadsheet.worksheet('Einnahmen')
         sheet_expenses = spreadsheet.worksheet('Ausgaben')
