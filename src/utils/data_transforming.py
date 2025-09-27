@@ -8,7 +8,7 @@ from src.utils.data_extracting import check_income_or_expense, get_transaction_v
 
 
 def extract_transaction_info(
-    transaction: list[str], gsheets: dict
+    transaction: list[str], gsheets: dict[str, pd.DataFrame]
 ) -> tuple[str, pd.DataFrame, str, float, str]:
     """Return transaction type, DataFrame, name, value, and month."""
     logging.info(f'Checking transaction {transaction}...')
@@ -17,7 +17,7 @@ def extract_transaction_info(
 
     if transaction_type not in gsheets:
         raise ValueError(f'Unknown transaction type: {transaction_type}')
-    
+
     df = gsheets[transaction_type]
     transaction_value = get_transaction_value(transaction)
     name = transaction[1].strip() if len(transaction) > 1 else 'Monatsabschluss Bank'
@@ -32,11 +32,10 @@ def add_new_row(
     month: str,
     transaction_value: float,
     transaction_type: str,
-    sheets: dict,
+    sheets: dict[str, pd.DataFrame],
     general_account: bool = False,
 ) -> None:
     """Add a new transaction row to the DataFrame."""
-
     new_row_data = [name] + [None] * (len(df.columns) - 1)
     new_row = pd.DataFrame([new_row_data], columns=df.columns)
 

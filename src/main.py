@@ -1,17 +1,23 @@
 """This file processes an account statement and writes the data into a GSheet."""
 
-import sys
+import logging
 import os
 from pathlib import Path
-import logging
+import sys
 
 import pandas as pd
 
-sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..")))
 
-from src.utils.data_extracting import get_all_account_statement_files, extract_text_from_pdf, get_balance_of_account, get_all_transactions
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
+
+from src.utils.data_extracting import (
+    extract_text_from_pdf,
+    get_all_account_statement_files,
+    get_all_transactions,
+    get_balance_of_account,
+)
 from src.utils.data_loading import update_google_sheet
-from src.utils.data_transforming import extract_transaction_info, add_new_row
+from src.utils.data_transforming import add_new_row, extract_transaction_info
 from src.utils.google_connection import set_up_google_connection
 
 
@@ -25,13 +31,12 @@ client, service = set_up_google_connection(credentials_path)
 SPREADSHEET_ID = '1OnrW1foE-1lOtgfxBv2Y5qqJSDnW4hiYeLpScjgFKxM'
 
 
-def process_account_statements():
-
+def process_account_statements() -> None:
+    """Process all account statements in the downloads folder."""
     ###############
     # Get files
     ###############
     acc_files = get_all_account_statement_files(downloads_path)
-
 
     for acc_file in acc_files:
         # TODO: Check if file already in GDrive folder
@@ -41,21 +46,25 @@ def process_account_statements():
 
         acc_balance_old = get_balance_of_account(lines, 'alter Kontostand')
         acc_balance_new = get_balance_of_account(lines, 'neuer Kontostand')
-        logging.info(f'Old acc value, Value: {acc_balance_old[0]}€ - Line-Index: {acc_balance_old[1]}')
-        logging.info(f'New acc value, Value: {acc_balance_new[0]}€ - Line-Index: {acc_balance_new[1]}')
+        logging.info(
+            f'Old acc value, Value: {acc_balance_old[0]}€ - Line-Index: {acc_balance_old[1]}'
+        )
+        logging.info(
+            f'New acc value, Value: {acc_balance_new[0]}€ - Line-Index: {acc_balance_new[1]}'
+        )
 
-        all_transactions = get_all_transactions(lines, acc_balance_old[1], acc_balance_new[1])
+        all_transactions = get_all_transactions(
+            lines, acc_balance_old[1], acc_balance_new[1]
+        )
         logging.info(f'Count of transactions: {len(all_transactions)}')
-
 
         ####################
         # Open Spreadsheet
         ####################
-        spreadsheet = client.open_by_key(SPREADSHEET_ID) # TODO: Put in secrets/env
+        spreadsheet = client.open_by_key(SPREADSHEET_ID)  # TODO: Put in secrets/env
 
         sheet_incomes = spreadsheet.worksheet('Einnahmen')
         sheet_expenses = spreadsheet.worksheet('Ausgaben')
-
 
         #########################
         # Convert sheet to pdf
@@ -70,7 +79,6 @@ def process_account_statements():
         df_incomes = df_incomes[1:].reset_index(drop=True)
 
         gsheets = {'Expense': df_expenses, 'Income': df_incomes}
-
 
         ############################################
         # Get transaction info and write into  df
@@ -91,7 +99,7 @@ def process_account_statements():
                 gsheets,
                 general_account=True,
             )
-        
+
         #############################
         # Write new data to gsheet
         #############################

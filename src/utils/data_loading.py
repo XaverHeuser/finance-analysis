@@ -1,9 +1,8 @@
 """This module includes functions for loading data into Google Sheets."""
 
-import pandas as pd
-
 from gspread import Worksheet
 from gspread_dataframe import set_with_dataframe
+import pandas as pd
 
 
 def update_google_sheet(sheet: Worksheet, df: pd.DataFrame) -> None:
