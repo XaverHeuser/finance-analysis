@@ -31,7 +31,7 @@ client, service = set_up_google_connection(credentials_path)
 SPREADSHEET_ID = '1OnrW1foE-1lOtgfxBv2Y5qqJSDnW4hiYeLpScjgFKxM'
 
 
-def process_account_statements():
+def process_account_statements() -> None:
     """Process all account statements in the downloads folder."""
     ###############
     # Get files

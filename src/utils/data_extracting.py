@@ -48,7 +48,7 @@ def extract_balance_from_line(line: str) -> float:
         return 0.0
 
 
-def get_balance_of_account(lines: list, balance_type: str) -> list:
+def get_balance_of_account(lines: list[str], balance_type: str) -> tuple[float, int]:
     """Get all balances (old or new) of an account."""
     results = []
     for idx, line in enumerate(lines):
@@ -57,24 +57,25 @@ def get_balance_of_account(lines: list, balance_type: str) -> list:
             results.append((balance_float, idx))
     if not results:
         logging.error(f'{balance_type} not found.')
+        return (0.0, -1)
     else:
         if balance_type == 'neuer Kontostand':
-            results = results[-1]
+            final_result = results[-1]
         if balance_type == 'alter Kontostand':
-            results = results[0]
-    return results
+            final_result = results[0]
+    return final_result
 
 
 def get_all_transactions(
-    lines: list, old_balance_idx: int, new_balance_idx: int
-) -> list:
+    lines: list[str], old_balance_idx: int, new_balance_idx: int
+) -> list[list[str]]:
     """Extract all transactions from an account statement between two index markers."""
     transactions_part = lines[old_balance_idx + 1 : new_balance_idx]
     pattern_transaction_start = re.compile(r'\d{2}\.\d{2}\. \d{2}\.\d{2}\.')
     pattern_transaction_start_alt = re.compile(r'Übertrag')
 
     transactions = []
-    current_transaction = []
+    current_transaction: list[str] = []
 
     for line in transactions_part:
         # If line starts with Übertrag or with pattern_transaction_start, then it is a new transaction
@@ -117,7 +118,7 @@ def check_income_or_expense(transaction: list[str]) -> str:
     return 'Unknown'
 
 
-def get_transaction_value(transaction: list) -> float:
+def get_transaction_value(transaction: list[str]) -> float:
     """Get the value of the transaction."""
     value = transaction[0].split(' ')[-2]
     value_float = float(value.replace('.', '').replace(',', '.'))
