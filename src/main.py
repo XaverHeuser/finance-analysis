@@ -1,6 +1,5 @@
 """This file processes an account statement and writes the data into a GSheet."""
 
-import logging
 import os
 from pathlib import Path
 import sys
@@ -11,26 +10,33 @@ import pandas as pd
 
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
-from src.utils.data_extracting import (
+from utils.data_extracting import (
+    check_if_file_already_processed,
     extract_text_from_pdf,
-    get_all_account_statement_files,
+    get_acc_files_from_gdrive_folder,
     get_all_transactions,
     get_balance_of_account,
+    move_file,
 )
-from src.utils.data_loading import update_google_sheet
-from src.utils.data_transforming import add_new_row, extract_transaction_info
-from src.utils.google_connection import set_up_google_connection
+from utils.data_loading import update_google_sheet
+from utils.data_transforming import add_new_row, extract_transaction_info
+from utils.google_connection import set_up_google_connection
 
+
+# TODO: Add comments
+# TODO: Clean up code
 
 ##############
 # Configs
 ##############
-credentials_path = Path('../credentials/cool-plasma-452619-v4-feb20b70d461.json')
+credentials_path = Path('./credentials/cool-plasma-452619-v4-feb20b70d461.json')
 downloads_path = Path.home() / 'Downloads'
 
 client, service = set_up_google_connection(credentials_path)
+
 load_dotenv()
-SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
+TEMP_FOLDER_ID = os.getenv('TEMP_FOLDER_ID')
+REGULAR_FOLDER_ID = os.getenv('REGULAR_FOLDER_ID')
 
 
 def process_account_statements() -> None:
@@ -38,32 +44,66 @@ def process_account_statements() -> None:
     ###############
     # Get files
     ###############
-    acc_files = get_all_account_statement_files(downloads_path)
+    # acc_files = get_all_account_statement_files(downloads_path)
+    acc_files = get_acc_files_from_gdrive_folder(TEMP_FOLDER_ID, service)
 
     for acc_file in acc_files:
-        # TODO: Check if file already in GDrive folder
+        if 'Kontoauszug' not in acc_file['name']:
+            print(f'Skipping file {acc_file["name"]} as it does not match criteria.')
+            continue
 
-        full_pdf_text = extract_text_from_pdf(acc_file)
+        # Rename file
+        new_name = '_'.join(acc_file['name'].split('_')[:4])
+        if not new_name.lower().endswith('.pdf'):
+            new_name += '.pdf'
+
+        acc_file['name'] = new_name
+
+        file = (
+            service.files()
+            .get(fileId=acc_file['id'], fields='owners, permissions')
+            .execute()
+        )
+        print(file)
+
+        # Check if file already processed
+        if check_if_file_already_processed(
+            acc_file['name'], service, REGULAR_FOLDER_ID
+        ):
+            print(f'File {acc_file["name"]} already processed. Skipping.')
+            continue
+
+        # Get spreadsheet ID from env
+        acc_file_year = acc_file['name'].split('_')[1]
+        gsheet_file = f'SPREADSHEET_ID_{acc_file_year}'
+        spreadsheet_id = os.getenv(gsheet_file)
+        if spreadsheet_id is None:
+            print(f'No spreadsheet ID found for year {acc_file_year}. Skipping file.')
+            continue
+        print(f'Processing file {acc_file["name"]} into spreadsheet {spreadsheet_id}.')
+
+        # Process file
+        full_pdf_text = extract_text_from_pdf(acc_file['id'], service)
         lines = full_pdf_text.split('\n')
+        print(f'Extracted {len(lines)} lines from PDF.')
 
         acc_balance_old = get_balance_of_account(lines, 'alter Kontostand')
         acc_balance_new = get_balance_of_account(lines, 'neuer Kontostand')
-        logging.info(
+        print(
             f'Old acc value, Value: {acc_balance_old[0]}€ - Line-Index: {acc_balance_old[1]}'
         )
-        logging.info(
+        print(
             f'New acc value, Value: {acc_balance_new[0]}€ - Line-Index: {acc_balance_new[1]}'
         )
-
         all_transactions = get_all_transactions(
             lines, acc_balance_old[1], acc_balance_new[1]
         )
-        logging.info(f'Count of transactions: {len(all_transactions)}')
+        print(f'Count of transactions: {len(all_transactions)}')
 
         ####################
         # Open Spreadsheet
         ####################
-        spreadsheet = client.open_by_key(SPREADSHEET_ID)
+        spreadsheet = client.open_by_key(spreadsheet_id)
 
         sheet_incomes = spreadsheet.worksheet('Einnahmen')
         sheet_expenses = spreadsheet.worksheet('Ausgaben')
@@ -107,7 +147,11 @@ def process_account_statements() -> None:
         #############################
         update_google_sheet(sheet_expenses, gsheets['Expense'])
         update_google_sheet(sheet_incomes, gsheets['Income'])
-        logging.info('All changes saved to Google Sheets!')
+        print('All changes saved to Google Sheets!')
+
+        # Move processed file to regular folder
+        file_id = acc_file['id']
+        move_file(file_id, acc_file['name'], TEMP_FOLDER_ID, REGULAR_FOLDER_ID, service)
 
 
 if __name__ == '__main__':

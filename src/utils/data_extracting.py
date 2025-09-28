@@ -1,10 +1,26 @@
 """This module includes function for data extracting from Folder and pdf-Docs."""
 
+from io import BytesIO
 import logging
 from pathlib import Path
 import re
+from typing import Any, TypedDict
 
 import pdfplumber
+
+
+# TODO: Clean functions
+# TODO: Add comments
+# TODO: Add type hints
+# TODO: Add error handling
+# TODO: Explain classes / Enhance classes / outsource to separate file?
+
+
+class DriveFile(TypedDict):
+    """TypedDict for a file in Google Drive."""
+
+    id: str
+    name: str
 
 
 def get_all_account_statement_files(downloads_path: Path) -> list[Path]:
@@ -16,22 +32,66 @@ def get_all_account_statement_files(downloads_path: Path) -> list[Path]:
     ]
 
 
-def extract_text_from_pdf(pdf_path: Path) -> str:
-    """Extract the text from a pdf file."""
-    if not pdf_path.exists():
-        logging.error(f'File could not be found: {pdf_path}')
-        return ''
+def get_acc_files_from_gdrive_folder(folder_id: str, service: Any) -> list[DriveFile]:
+    """List all files in a specified Google Drive folder."""
+    query = f"'{folder_id}' in parents and trashed = false"
+    results = service.files().list(q=query, fields='files(id, name)').execute()
+    items: list[DriveFile] = results.get('files', [])
+    if not items:
+        print('No files found.')
+        return []
+    else:
+        items = sorted(items, key=lambda x: x['name'])
+        print('Files in folder:')
+        for item in items:
+            print(f'{item["name"]} (ID: {item["id"]})')
 
-    full_pdf_text = ''
+    return items
 
+
+def check_if_file_already_processed(
+    file_name: str, service: Any, regular_folder_id: str
+) -> bool:
+    """Check if a file with the same name already exists in the regular folder."""
+    query = (
+        f"'{regular_folder_id}' in parents and name = '{file_name}' and trashed = false"
+    )
+    results = service.files().list(q=query, fields='files(id, name)').execute()
+    items = results.get('files', [])
+    return len(items) > 0
+
+
+def extract_text_from_pdf(file_id: str, service: Any) -> str:
+    """Extract the text from a pdf file in GDrive."""
     try:
-        with pdfplumber.open(pdf_path) as pdf:
+        request = service.files().get_media(fileId=file_id)
+        file_data = request.execute()
+
+        with pdfplumber.open(BytesIO(file_data)) as pdf:
+            full_pdf_text = ''
             for page in pdf.pages:
                 full_pdf_text += page.extract_text(extraction_mode='layout')
+        return full_pdf_text
     except Exception as e:
-        logging.error(f'An unexpected error occurred while reading {pdf_path}: {e}')
+        logging.error(
+            f'An error occurred while extracting text from PDF with ID {file_id}: {e}'
+        )
+        return ''
 
-    return full_pdf_text
+
+def move_file(
+    file_id: str, name: str, old_folder_id: str, new_folder_id: str, service: Any
+) -> None:
+    """Move a file from old_folder_id to new_folder_id."""
+    service.files().update(
+        fileId=file_id,
+        addParents=new_folder_id,
+        removeParents=old_folder_id,
+        body={'name': name},
+        fields='id, name, parents',
+    ).execute()
+
+    print(f'File {file_id} moved to {new_folder_id}')
 
 
 def extract_balance_from_line(line: str) -> float:
@@ -88,7 +148,6 @@ def get_all_transactions(
 
     transactions.append(current_transaction)  # Append the last transaction
 
-    print(transactions)
     transactions = transactions[1:]  # Remove the empty first transaction
 
     # Filter out transactions that start with 'Übertrag'
