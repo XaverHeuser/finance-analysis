@@ -4,7 +4,7 @@ import logging
 
 import pandas as pd
 
-from src.utils.data_extracting import check_income_or_expense, get_transaction_value
+from utils.data_extracting import check_income_or_expense, get_transaction_value
 
 
 def extract_transaction_info(
