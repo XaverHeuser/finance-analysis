@@ -59,13 +59,6 @@ def process_account_statements() -> None:
 
         acc_file['name'] = new_name
 
-        file = (
-            service.files()
-            .get(fileId=acc_file['id'], fields='owners, permissions')
-            .execute()
-        )
-        print(file)
-
         # Check if file already processed
         if check_if_file_already_processed(
             acc_file['name'], service, REGULAR_FOLDER_ID
