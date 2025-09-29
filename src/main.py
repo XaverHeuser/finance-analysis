@@ -11,24 +11,23 @@ import pandas as pd
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
 from utils.data_extracting import (
-    check_if_file_already_processed,
     extract_text_from_pdf,
     get_acc_files_from_gdrive_folder,
     get_all_transactions,
     get_balance_of_account,
-    move_file,
 )
 from utils.data_loading import update_google_sheet
 from utils.data_transforming import add_new_row, extract_transaction_info
-from utils.google_connection import set_up_google_connection
+from utils.google_services import (
+    check_if_file_in_folder,
+    move_file,
+    set_up_google_connection,
+)
 
 
-# TODO: Add comments
-# TODO: Clean up code
-
-##############
-# Configs
-##############
+#########################
+# Configs and Variables
+#########################
 credentials_path = Path('./credentials/cool-plasma-452619-v4-feb20b70d461.json')
 downloads_path = Path.home() / 'Downloads'
 
@@ -39,41 +38,33 @@ TEMP_FOLDER_ID = os.getenv('TEMP_FOLDER_ID')
 REGULAR_FOLDER_ID = os.getenv('REGULAR_FOLDER_ID')
 
 
+#############
+# Main func
+#############
 def process_account_statements() -> None:
     """Process all account statements in the downloads folder."""
-    ###############
-    # Get files
-    ###############
-    # acc_files = get_all_account_statement_files(downloads_path)
+    # Get all account statement files from GDrive temp folder
     acc_files = get_acc_files_from_gdrive_folder(TEMP_FOLDER_ID, service)
 
+    # Process each account statement file
     for acc_file in acc_files:
+        # Check if file matches criteria
         if 'Kontoauszug' not in acc_file['name']:
             print(f'Skipping file {acc_file["name"]} as it does not match criteria.')
             continue
 
-        # Rename file
+        # Standardize file name
         new_name = '_'.join(acc_file['name'].split('_')[:4])
         if not new_name.lower().endswith('.pdf'):
             new_name += '.pdf'
-
         acc_file['name'] = new_name
 
-        file = (
-            service.files()
-            .get(fileId=acc_file['id'], fields='owners, permissions')
-            .execute()
-        )
-        print(file)
-
         # Check if file already processed
-        if check_if_file_already_processed(
-            acc_file['name'], service, REGULAR_FOLDER_ID
-        ):
+        if check_if_file_in_folder(acc_file['name'], service, REGULAR_FOLDER_ID):
             print(f'File {acc_file["name"]} already processed. Skipping.')
             continue
 
-        # Get spreadsheet ID from env
+        # Get spreadsheet ID based on year in file name
         acc_file_year = acc_file['name'].split('_')[1]
         gsheet_file = f'SPREADSHEET_ID_{acc_file_year}'
         spreadsheet_id = os.getenv(gsheet_file)
@@ -82,11 +73,12 @@ def process_account_statements() -> None:
             continue
         print(f'Processing file {acc_file["name"]} into spreadsheet {spreadsheet_id}.')
 
-        # Process file
+        # Extract text from PDF
         full_pdf_text = extract_text_from_pdf(acc_file['id'], service)
         lines = full_pdf_text.split('\n')
         print(f'Extracted {len(lines)} lines from PDF.')
 
+        # Get account balances and transactions
         acc_balance_old = get_balance_of_account(lines, 'alter Kontostand')
         acc_balance_new = get_balance_of_account(lines, 'neuer Kontostand')
         print(
@@ -100,17 +92,13 @@ def process_account_statements() -> None:
         )
         print(f'Count of transactions: {len(all_transactions)}')
 
-        ####################
-        # Open Spreadsheet
-        ####################
+        # Open Google Sheets
         spreadsheet = client.open_by_key(spreadsheet_id)
 
         sheet_incomes = spreadsheet.worksheet('Einnahmen')
         sheet_expenses = spreadsheet.worksheet('Ausgaben')
 
-        #########################
-        # Convert sheet to pdf
-        #########################
+        # Load data from sheets into dataframes
         df_expenses = pd.DataFrame(sheet_expenses.get_all_values())
         df_incomes = pd.DataFrame(sheet_incomes.get_all_values())
 
@@ -122,16 +110,16 @@ def process_account_statements() -> None:
 
         gsheets = {'Expense': df_expenses, 'Income': df_incomes}
 
-        ############################################
-        # Get transaction info and write into  df
-        ############################################
+        # Process each transaction
         for transaction_index in range(len(all_transactions)):
             transaction = all_transactions[transaction_index]
 
+            # Extract transaction info
             transaction_type, df, name, transaction_value, month = (
                 extract_transaction_info(transaction, gsheets)
             )
 
+            # Add new row to dataframe
             add_new_row(
                 df,
                 name,
@@ -142,9 +130,7 @@ def process_account_statements() -> None:
                 general_account=True,
             )
 
-        #############################
-        # Write new data to gsheet
-        #############################
+        # Update Google Sheets with new data
         update_google_sheet(sheet_expenses, gsheets['Expense'])
         update_google_sheet(sheet_incomes, gsheets['Income'])
         print('All changes saved to Google Sheets!')
