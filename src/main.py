@@ -11,16 +11,18 @@ import pandas as pd
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
 from utils.data_extracting import (
-    check_if_file_already_processed,
     extract_text_from_pdf,
     get_acc_files_from_gdrive_folder,
     get_all_transactions,
     get_balance_of_account,
-    move_file,
 )
 from utils.data_loading import update_google_sheet
 from utils.data_transforming import add_new_row, extract_transaction_info
-from utils.google_connection import set_up_google_connection
+from utils.google_services import (
+    check_if_file_in_folder,
+    move_file,
+    set_up_google_connection,
+)
 
 
 #########################
@@ -58,9 +60,7 @@ def process_account_statements() -> None:
         acc_file['name'] = new_name
 
         # Check if file already processed
-        if check_if_file_already_processed(
-            acc_file['name'], service, REGULAR_FOLDER_ID
-        ):
+        if check_if_file_in_folder(acc_file['name'], service, REGULAR_FOLDER_ID):
             print(f'File {acc_file["name"]} already processed. Skipping.')
             continue
 
