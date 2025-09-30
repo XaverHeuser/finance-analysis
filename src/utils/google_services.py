@@ -29,7 +29,7 @@ def set_up_google_connection(json_credentials_path: Optional[str] = None) -> tup
         print('Using local JSON credentials')
     else:
         # Cloud Run / Docker: default credentials
-        creds, _ = google.auth.default(scopes=SCOPES) # type: ignore
+        creds, _ = google.auth.default(scopes=SCOPES)
         client = gspread.authorize(creds)
         service = build('drive', 'v3', credentials=creds)
         print('Using default Cloud Run credentials')
