@@ -13,13 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       # Install Cloud SDK
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: cool-plasma-452619-v4
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+          version: '426.0.0'
+
+      - name: Configure Docker for GCR
+        run: |
+          gcloud auth configure-docker
 
       # Build Docker image
       - name: Build Docker image
