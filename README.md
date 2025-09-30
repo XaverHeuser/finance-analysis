@@ -35,7 +35,6 @@ This project automates the analysis of private finance data by processing monthl
 
 - tbd.
 
-## Future Enhancements
 
 
 ## Deployment
@@ -53,3 +52,8 @@ This project automates the analysis of private finance data by processing monthl
 2. docker push gcr.io/cool-plasma-452619-v4/finance-analysis:latest
 3. gcloud run jobs update finance-analysis-job --image gcr.io/cool-plasma-452619-v4/finance-analysis:latest --region europe-west3
 -> Cloud Trigger startet automatisch mit der neuesten Version
+
+
+## Future Enhancements
+
+- Add checks for Deployment to secure stability and functionability of script and functions!
