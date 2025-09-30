@@ -1,5 +1,6 @@
 """This file processes an account statement and writes the data into a GSheet."""
 
+import logging
 import os
 from pathlib import Path
 import sys
@@ -35,8 +36,6 @@ client, service = set_up_google_connection()
 # load_dotenv()
 TEMP_FOLDER_ID = os.environ.get('TEMP_FOLDER_ID')
 REGULAR_FOLDER_ID = os.environ.get('REGULAR_FOLDER_ID')
-if not TEMP_FOLDER_ID or not REGULAR_FOLDER_ID:
-    raise ValueError("One of the required env variables is not set!")
 
 #############
 # Main func
