@@ -32,10 +32,11 @@ from utils.google_services import (
 
 client, service = set_up_google_connection()
 
-load_dotenv()
-TEMP_FOLDER_ID = os.getenv('TEMP_FOLDER_ID')
-REGULAR_FOLDER_ID = os.getenv('REGULAR_FOLDER_ID')
-
+# load_dotenv()
+TEMP_FOLDER_ID = os.environ.get('TEMP_FOLDER_ID')
+REGULAR_FOLDER_ID = os.environ.get('REGULAR_FOLDER_ID')
+if not TEMP_FOLDER_ID or not REGULAR_FOLDER_ID:
+    raise ValueError("One of the required env variables is not set!")
 
 #############
 # Main func
