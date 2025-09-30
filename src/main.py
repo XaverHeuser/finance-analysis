@@ -1,10 +1,8 @@
 """This file processes an account statement and writes the data into a GSheet."""
 
 import os
-from pathlib import Path
 import sys
 
-from dotenv import load_dotenv
 import pandas as pd
 
 
@@ -28,14 +26,11 @@ from utils.google_services import (
 #########################
 # Configs and Variables
 #########################
-credentials_path = Path('./credentials/cool-plasma-452619-v4-feb20b70d461.json')
-downloads_path = Path.home() / 'Downloads'
+client, service = set_up_google_connection()
 
-client, service = set_up_google_connection(credentials_path)
-
-load_dotenv()
-TEMP_FOLDER_ID = os.getenv('TEMP_FOLDER_ID')
-REGULAR_FOLDER_ID = os.getenv('REGULAR_FOLDER_ID')
+# load_dotenv()
+TEMP_FOLDER_ID = os.environ.get('TEMP_FOLDER_ID')
+REGULAR_FOLDER_ID = os.environ.get('REGULAR_FOLDER_ID')
 
 
 #############
@@ -67,7 +62,7 @@ def process_account_statements() -> None:
         # Get spreadsheet ID based on year in file name
         acc_file_year = acc_file['name'].split('_')[1]
         gsheet_file = f'SPREADSHEET_ID_{acc_file_year}'
-        spreadsheet_id = os.getenv(gsheet_file)
+        spreadsheet_id = os.environ.get(gsheet_file)
         if spreadsheet_id is None:
             print(f'No spreadsheet ID found for year {acc_file_year}. Skipping file.')
             continue

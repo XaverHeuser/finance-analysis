@@ -1,0 +1,39 @@
+name: Build and Deploy Cloud Run Job
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Install Cloud SDK
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: cool-plasma-452619-v4
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t gcr.io/cool-plasma-452619-v4/finance-analysis:latest .
+
+      # Push Docker image to Google Container Registry
+      - name: Push Docker image
+        run: |
+          docker push gcr.io/cool-plasma-452619-v4/finance-analysis:latest
+
+      # Update Cloud Run Job
+      - name: Update Cloud Run Job
+        run: |
+          gcloud run jobs update finance-analysis-job \
+            --image gcr.io/cool-plasma-452619-v4/finance-analysis:latest \
+            --region europe-west3
