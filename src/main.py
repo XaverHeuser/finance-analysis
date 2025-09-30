@@ -66,7 +66,7 @@ def process_account_statements() -> None:
         # Get spreadsheet ID based on year in file name
         acc_file_year = acc_file['name'].split('_')[1]
         gsheet_file = f'SPREADSHEET_ID_{acc_file_year}'
-        spreadsheet_id = os.getenv(gsheet_file)
+        spreadsheet_id = os.environ.get(gsheet_file)
         if spreadsheet_id is None:
             print(f'No spreadsheet ID found for year {acc_file_year}. Skipping file.')
             continue
