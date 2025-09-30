@@ -43,7 +43,12 @@ This project automates the analysis of private finance data by processing monthl
 - The app/ main script is deployed on GCP
 - Execution status: 0 7 3 * * (Every third day of a month at 7am.)
 
-How to deploy changes:
+### Initial setup
+
+- 
+
+### Deploy changes
+
 1. docker build -t gcr.io/cool-plasma-452619-v4/finance-analysis:latest .
 2. docker push gcr.io/cool-plasma-452619-v4/finance-analysis:latest
 3. gcloud run jobs update finance-analysis-job --image gcr.io/cool-plasma-452619-v4/finance-analysis:latest --region europe-west3

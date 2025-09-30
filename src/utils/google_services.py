@@ -17,7 +17,9 @@ SCOPES = [
 ]
 
 
-def set_up_google_connection(json_credentials_path: Optional[str] = None) -> tuple[gspread.Client, Any]:
+def set_up_google_connection(
+    json_credentials_path: Optional[str] = None,
+) -> tuple[gspread.Client, Any]:
     """Set up Google connection. Local or Cloud Run."""
     if json_credentials_path and os.path.exists(json_credentials_path):
         # Lokale Authentifizierung über Service Account JSON
