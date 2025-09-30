@@ -28,10 +28,9 @@ from utils.google_services import (
 #########################
 # Configs and Variables
 #########################
-credentials_path = Path('./credentials/cool-plasma-452619-v4-feb20b70d461.json')
-downloads_path = Path.home() / 'Downloads'
+# credentials_path = Path('./credentials/cool-plasma-452619-v4-feb20b70d461.json')
 
-client, service = set_up_google_connection(credentials_path)
+client, service = set_up_google_connection()
 
 load_dotenv()
 TEMP_FOLDER_ID = os.getenv('TEMP_FOLDER_ID')
