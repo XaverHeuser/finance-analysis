@@ -3,7 +3,7 @@
 from io import BytesIO
 import logging
 import re
-from typing import Any, TypedDict
+from typing import Any
 
 import pdfplumber
 

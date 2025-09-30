@@ -1,11 +1,8 @@
 """This file processes an account statement and writes the data into a GSheet."""
 
-import logging
 import os
-from pathlib import Path
 import sys
 
-from dotenv import load_dotenv
 import pandas as pd
 
 
@@ -36,6 +33,7 @@ client, service = set_up_google_connection()
 # load_dotenv()
 TEMP_FOLDER_ID = os.environ.get('TEMP_FOLDER_ID')
 REGULAR_FOLDER_ID = os.environ.get('REGULAR_FOLDER_ID')
+
 
 #############
 # Main func
