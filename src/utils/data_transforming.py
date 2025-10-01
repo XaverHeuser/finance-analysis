@@ -1,5 +1,6 @@
 """This module includes functions for transforming data."""
 
+from datetime import date
 import logging
 
 import pandas as pd
@@ -8,43 +9,26 @@ from utils.data_extracting import check_income_or_expense, get_transaction_value
 
 
 def extract_transaction_info(
-    transaction: list[str], gsheets: dict[str, pd.DataFrame]
-) -> tuple[str, pd.DataFrame, str, float, str]:
+    transaction: list[str], transaction_year: str
+) -> tuple[str, float, str, date]:
     """Return transaction type, DataFrame, name, value, and month."""
     logging.info(f'Checking transaction {transaction}...')
 
+    transaction_name = (
+        transaction[1].strip() if len(transaction) > 1 else 'Bareinzahlung'
+    )
+    transaction_value = get_transaction_value(transaction)
     transaction_type = check_income_or_expense(transaction)
 
-    if transaction_type not in gsheets:
-        raise ValueError(f'Unknown transaction type: {transaction_type}')
+    date_str = str(transaction[0].split(' ')[0] + transaction_year)
+    transaction_date = pd.to_datetime(date_str, format='%d.%m.%Y').date()
 
-    df = gsheets[transaction_type]
-    transaction_value = get_transaction_value(transaction)
-    name = transaction[1].strip() if len(transaction) > 1 else 'Monatsabschluss Bank'
-    month = transaction[0].split('.')[1]
-
-    return transaction_type, df, name, transaction_value, month
+    return transaction_name, transaction_value, transaction_type, transaction_date
 
 
 def add_new_row(
-    df: pd.DataFrame,
-    name: str,
-    month: str,
-    transaction_value: float,
-    transaction_type: str,
-    sheets: dict[str, pd.DataFrame],
-    general_account: bool = False,
+    df: pd.DataFrame, t_name: str, t_value: float, t_type: str, t_date: date
 ) -> None:
-    """Add a new transaction row to the DataFrame."""
-    new_row_data = [name] + [None] * (len(df.columns) - 1)
-    new_row = pd.DataFrame([new_row_data], columns=df.columns)
-
-    df = pd.concat([df, new_row], ignore_index=True)
-    new_row_index = df.index[-1]
-
-    df.loc[new_row_index, month] = transaction_value
-
-    if transaction_type == 'Expense':
-        sheets['Expense'] = df
-    else:
-        sheets['Income'] = df
+    """Append a new row to the DataFrame."""
+    # Append new row to DataFrame
+    df.loc[len(df)] = [t_name, t_value, t_type, t_date, None, None]
