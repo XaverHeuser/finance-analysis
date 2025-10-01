@@ -22,7 +22,7 @@ def set_up_google_connection(
 ) -> tuple[gspread.Client, Any]:
     """Set up Google connection. Local or Cloud Run."""
     if json_credentials_path and os.path.exists(json_credentials_path):
-        # Lokale Authentifizierung über Service Account JSON
+        # Local authentication via Service Account JSON
         creds = ServiceAccountCredentials.from_json_keyfile_name(
             json_credentials_path, SCOPES
         )
