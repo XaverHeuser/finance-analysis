@@ -7,7 +7,7 @@ from typing import Any
 
 import pdfplumber
 
-from models.models import DriveFile
+from src.models.models import DriveFile
 
 
 def get_acc_files_from_gdrive_folder(folder_id: str, service: Any) -> list[DriveFile]:
@@ -165,20 +165,20 @@ def check_income_or_expense(transaction: list[str]) -> str:
     """Check if the transaction is an income or an expense based on its first line."""
     try:
         if not transaction:
-            return 'Unknown'
+            return 'Unbekannt'
 
         line = transaction[0]
 
         # Transactions ending with 'S' → expense, 'H' → income
         if line.endswith('S'):
-            return 'Expense'
+            return 'Ausgabe'
         elif line.endswith('H'):
-            return 'Income'
-        return 'Unknown'
+            return 'Einnahme'
+        return 'Unbekannt'
 
     except Exception as e:
         logging.error(f'Error determining income/expense: {e}')
-        return 'Unknown'
+        return 'Unbekannt'
 
 
 def get_transaction_value(transaction: list[str]) -> float:

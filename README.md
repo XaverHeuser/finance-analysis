@@ -56,4 +56,8 @@ This project automates the analysis of private finance data by processing monthl
 
 ## Future Enhancements
 
-- Add checks for Deployment to secure stability and functionability of script and functions!
+- Add checks/tests for Deployment to secure stability and functionability of script and functions!
+- Add tests!!!
+- Add nice way to visualize data
+- - Write data from gsheets into Cloud Storage (after every run)?
+- - Visualize Data via Looker? -> Create Dashboard -> Find possibilities for data storage and access from looker (or other data-viz tool?!)
