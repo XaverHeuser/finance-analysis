@@ -7,7 +7,7 @@ from typing import Any
 
 import pdfplumber
 
-from src.models.models import DriveFile
+from models.models import DriveFile
 
 
 def get_acc_files_from_gdrive_folder(folder_id: str, service: Any) -> list[DriveFile]:

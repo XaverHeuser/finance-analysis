@@ -10,7 +10,7 @@ from utils.data_extracting import check_income_or_expense, get_transaction_value
 
 def extract_transaction_info(
     transaction: list[str], transaction_year: str
-) -> tuple[str, pd.DataFrame, str, float, str]:
+) -> tuple[str, float, str, date]:
     """Return transaction type, DataFrame, name, value, and month."""
     logging.info(f'Checking transaction {transaction}...')
 
