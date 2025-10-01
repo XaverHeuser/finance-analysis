@@ -14,7 +14,9 @@ def extract_transaction_info(
     """Return transaction type, DataFrame, name, value, and month."""
     logging.info(f'Checking transaction {transaction}...')
 
-    transaction_name = transaction[1].strip() if len(transaction) > 1 else 'Bareinzahlung'
+    transaction_name = (
+        transaction[1].strip() if len(transaction) > 1 else 'Bareinzahlung'
+    )
     transaction_value = get_transaction_value(transaction)
     transaction_type = check_income_or_expense(transaction)
 

@@ -27,14 +27,15 @@ from utils.google_services import (
 #########################
 # Configs and Variables
 #########################
-client, service = set_up_google_connection()
+# client, service = set_up_google_connection(
+#     Path(os.getcwd()) / 'credentials/gc-creds.json'
+# ) # Local
+client, service = set_up_google_connection()  # Cloud Run / Docker
 
-# load_dotenv()
+# load_dotenv() # Local
 SPREADSHEET_ID = os.environ.get('SPREADSHEET_ID')
 TEMP_FOLDER_ID = os.environ.get('TEMP_FOLDER_ID')
 REGULAR_FOLDER_ID = os.environ.get('REGULAR_FOLDER_ID')
-
-# TODO: Implement check if IDs are not None
 
 
 #############
