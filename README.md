@@ -19,10 +19,6 @@ This project automates the analysis of private finance data by processing monthl
 | 3. Analyze account statement and write data to GSheet     | Script     | GCP                   | At beginning of month                |
 | 4. Send notification e-mail about script status           | Script     | GCP                   | Immediately after analysis           |
 
-## Technischer Aufbau
-
-- tbd.
-
 ## Getting Started
 
 - tbd.
@@ -31,11 +27,30 @@ This project automates the analysis of private finance data by processing monthl
 
 - tbd.
 
-## Security Considerations
 
-- tbd.
+## ⚠️ Security Notice: pip vulnerability (GHSA-4xh5-x5gv-qwph)
 
+This project uses `pip` for dependency management.  
+At the moment, `pip-audit` reports the following known vulnerability:
 
+- **Package:** pip  
+- **Version:** 25.2  
+- **Advisory:** [GHSA-4xh5-x5gv-qwph](https://github.com/advisories/GHSA-4xh5-x5gv-qwph)  
+- **Status:** No fixed version is available yet (latest release 25.2 is still affected).  
+
+### Why is this ignored?
+- The vulnerability only affects `pip` when installing **malicious or untrusted source distributions (sdists)**.  
+- In this project, packages are only installed from **trusted sources (PyPI wheels / pinned dependencies)**.  
+- Blocking merges until a fixed pip release exists would prevent other critical updates.
+
+### Mitigation
+- The advisory is temporarily ignored in `pip-audit` runs using the ID `GHSA-4xh5-x5gv-qwph`.  
+- We will upgrade to the first non-vulnerable release of `pip` (expected > 25.2) as soon as it becomes available.  
+- Until then, all installs are limited to trusted sources to minimize risk.
+
+➡️ **Action Item:** Keep track of pip releases and remove this ignore rule once a patched version is published.
+
+---
 
 ## Deployment
 

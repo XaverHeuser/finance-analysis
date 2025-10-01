@@ -61,7 +61,7 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run pip-audit
-        run: pip-audit
+        run: pip-audit --ignore-vuln GHSA-4xh5-x5gv-qwph
 
       - name: Run Bandit
         run: bandit -r . --exclude ./tests
