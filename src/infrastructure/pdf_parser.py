@@ -2,12 +2,13 @@
 
 from io import BytesIO
 import logging
+from pathlib import Path
 from typing import Any
 
 import pdfplumber
 
 
-def extract_text_from_pdf(file_id: str, service: Any) -> str:
+def extract_text_from_pdf_in_gdrive(file_id: str, service: Any) -> str:
     """Extract the text from a pdf file in GDrive."""
     try:
         # Request file content from Google Drive API
@@ -44,3 +45,21 @@ def extract_pdf_lines(full_pdf_text: str) -> list[str]:
     except Exception as e:
         logging.error(f'Error splitting PDF text into lines: {e}')
         return []
+
+
+def extract_text_from_pdf_in_local(pdf_path: Path) -> str:
+    """Extract the text from a pdf file in local storage."""
+    if not pdf_path.exists():
+        logging.error(f'File could not be found: {pdf_path}')
+        return ''
+
+    full_pdf_text = ''
+
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages:
+                full_pdf_text += page.extract_text(extraction_mode='layout')
+    except Exception as e:
+        logging.error(f'An unexpected error occurred while reading {pdf_path}: {e}')
+
+    return full_pdf_text

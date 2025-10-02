@@ -27,7 +27,7 @@ from infrastructure.google_sheets import (
     open_worksheet,
     update_google_sheet,
 )
-from infrastructure.pdf_parser import extract_pdf_lines, extract_text_from_pdf
+from infrastructure.pdf_parser import extract_pdf_lines, extract_text_from_pdf_in_gdrive
 
 
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
@@ -45,6 +45,7 @@ def process_account_statements() -> None:
     for acc_state in acc_states:
         # Validate file name
         if not is_valid_account_file(acc_state['name']):
+            # TODO: validate account number in file name
             logging.warning(f'Skipping file {acc_state["name"]}')
             continue
 
@@ -60,7 +61,7 @@ def process_account_statements() -> None:
         acc_state_year = get_year_from_file_name(acc_state['name'])
 
         # Extract text from PDF
-        full_pdf_text = extract_text_from_pdf(acc_state['id'], service)
+        full_pdf_text = extract_text_from_pdf_in_gdrive(acc_state['id'], service)
         lines = extract_pdf_lines(full_pdf_text)
 
         # Get account balances and transactions
