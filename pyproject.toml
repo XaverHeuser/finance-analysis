@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "account-statement-automation"
+name = "finance-analysis"
 version = "0.1.0"
 requires-python = ">=3.9"
 
 [tool.setuptools.packages.find]
-include = ["streamlit_app*", "utilities*"]
+include = ["src"]
