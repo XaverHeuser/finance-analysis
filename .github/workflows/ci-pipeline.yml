@@ -133,7 +133,7 @@ jobs:
             --maxfail=1 -rfE \
             --durations=10 \
             --junitxml=test-reports/junit.xml \
-            --cov=streamlit_app --cov=utilities \
+            --cov=src \
             --cov-report=term-missing \
             --cov-report=xml:test-reports/coverage.xml \
             --cov-report=html \
