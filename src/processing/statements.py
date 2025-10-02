@@ -32,6 +32,11 @@ from infrastructure.pdf_parser import extract_pdf_lines, extract_text_from_pdf_i
 
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
+# Path of creds for local testing:
+# -> Add as param to get_google_clients()
+# Activate local environs in config/settings.py
+# Path(os.getcwd()) / 'credentials/gc-creds.json'
+
 
 def process_account_statements() -> None:
     """Process all account statements in the downloads folder."""

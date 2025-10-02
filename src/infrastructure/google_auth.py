@@ -1,5 +1,6 @@
 """Module to handle Google authentication and setup."""
 
+import logging
 import os
 from typing import Any, Optional
 
@@ -20,14 +21,15 @@ def get_google_clients(
         creds = ServiceAccountCredentials.from_json_keyfile_name(
             json_credentials_path, SCOPES
         )
+        print(creds)
         client = gspread.authorize(creds)
         service = build('drive', 'v3', credentials=creds)
-        print('Using local JSON credentials')
+        logging.info('Using local JSON credentials')
     else:
         # Cloud Run / Docker: default credentials
         creds, _ = google.auth.default(scopes=SCOPES)
         client = gspread.authorize(creds)
         service = build('drive', 'v3', credentials=creds)
-        print('Using default Cloud Run credentials')
+        logging.info('Using default Cloud Run credentials')
 
     return client, service

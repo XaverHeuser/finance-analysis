@@ -4,7 +4,6 @@ import os
 
 
 # from dotenv import load_dotenv # local testing only
-
 # load_dotenv() # local testing only
 
 SPREADSHEET_ID = os.environ.get('SPREADSHEET_ID')

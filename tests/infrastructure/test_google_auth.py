@@ -1,5 +1,7 @@
 """Tests for Google authentication helper functions."""
 
+import logging
+
 import pytest
 
 import infrastructure.google_auth as google_auth
@@ -60,19 +62,19 @@ def mock_default_auth(monkeypatch):
     )
 
 
-def test_get_google_clients_local_json(mock_local_auth, capsys):
+def test_get_google_clients_local_json(mock_local_auth, capsys, caplog):
     """It should return client and service when using local JSON credentials."""
-    client, service = google_auth.get_google_clients('dummy.json')
+    with caplog.at_level(logging.INFO):
+        client, service = google_auth.get_google_clients('dummy.json')
     assert isinstance(client, DummyClient)
     assert isinstance(service, DummyService)
-    captured = capsys.readouterr()
-    assert 'Using local JSON credentials' in captured.out
+    assert 'Using local JSON credentials' in caplog.text
 
 
-def test_get_google_clients_default_credentials(mock_default_auth, capsys):
+def test_get_google_clients_default_credentials(mock_default_auth, capsys, caplog):
     """It should return client and service when using default Cloud Run credentials."""
-    client, service = google_auth.get_google_clients('nonexistent.json')
+    with caplog.at_level(logging.INFO):
+        client, service = google_auth.get_google_clients('nonexistent.json')
     assert isinstance(client, DummyClient)
     assert isinstance(service, DummyService)
-    captured = capsys.readouterr()
-    assert 'Using default Cloud Run credentials' in captured.out
+    assert 'Using default Cloud Run credentials' in caplog.text
