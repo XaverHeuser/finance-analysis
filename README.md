@@ -17,7 +17,8 @@ This project automates the analysis of private finance data by processing monthl
 | 1. Download account statement from bank                   | Manual     | PC (local) or mobile  | As soon as available (1st or 2nd day of the month) |
 | 2. Upload account statement to designated GDrive folder   | Manual     | PC (local) or mobile  | After download                       |
 | 3. Analyze account statement and write data to GSheet     | Script     | GCP                   | At beginning of month                |
-| 4. Send notification e-mail about script status           | Script     | GCP                   | Immediately after analysis           |
+| 4. Visualize data in Looker Studio                        | Script     | GCP                   | "4/7 available                       |
+
 
 ## Getting Started
 
