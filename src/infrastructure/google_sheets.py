@@ -1,14 +1,14 @@
 """Module for updating Google Sheets with pandas DataFrames."""
 
-from typing import Any
-
-from gspread import Worksheet
 import gspread
+from gspread import Worksheet
 from gspread_dataframe import set_with_dataframe
 import pandas as pd
 
 
-def open_worksheet(client: gspread.Client, spreadsheet_id: str, worksheet_name: str) -> Worksheet:
+def open_worksheet(
+    client: gspread.Client, spreadsheet_id: str, worksheet_name: str
+) -> Worksheet:
     """Open a specific worksheet in a Google Sheet."""
     spreadsheet = client.open_by_key(spreadsheet_id)
     sheet = spreadsheet.worksheet(worksheet_name)
