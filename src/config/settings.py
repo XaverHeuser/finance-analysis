@@ -13,7 +13,7 @@ TEMP_FOLDER_ID = os.environ.get('TEMP_FOLDER_ID')
 REGULAR_FOLDER_ID = os.environ.get('REGULAR_FOLDER_ID')
 
 
-def setup_logging():
+def setup_logging() -> None:
     """Setup logging."""
     logging.basicConfig(
         level=logging.INFO,
