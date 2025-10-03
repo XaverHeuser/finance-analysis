@@ -40,7 +40,7 @@ def extract_pdf_lines(full_pdf_text: str) -> list[str]:
     """Split the full PDF text into individual lines."""
     try:
         lines = full_pdf_text.split('\n')
-        logging.info(f'Extracted {len(lines)} lines from PDF.')
+        logging.debug(f'Extracted {len(lines)} lines from PDF.')
         return lines
     except Exception as e:
         logging.error(f'Error splitting PDF text into lines: {e}')

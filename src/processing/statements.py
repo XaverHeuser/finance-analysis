@@ -4,7 +4,12 @@ import logging
 import os
 import sys
 
-from config.settings import REGULAR_FOLDER_ID, SPREADSHEET_ID, TEMP_FOLDER_ID
+from config.settings import (
+    REGULAR_FOLDER_ID,
+    SPREADSHEET_ID,
+    TEMP_FOLDER_ID,
+    setup_logging,
+)
 from domain.balances import get_balances_of_account
 from domain.files import (
     get_year_from_file_name,
@@ -40,6 +45,9 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
 def process_account_statements() -> None:
     """Process all account statements in the downloads folder."""
+    # Setup logging
+    setup_logging()
+
     # Set up google clients
     client, service = get_google_clients()
 
@@ -59,7 +67,7 @@ def process_account_statements() -> None:
 
         # Check if file already processed
         if drive_file_exists(acc_state['name'], service, REGULAR_FOLDER_ID):
-            logging.info(f'File {acc_state["name"]} already processed. Skipping.')
+            logging.warning(f'File {acc_state["name"]} already processed. Skipping.')
             continue
 
         # Extract year from file name

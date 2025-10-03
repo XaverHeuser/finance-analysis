@@ -123,7 +123,7 @@ def test_extract_text_from_pdf_in_gdrive_handles_api_error(caplog):
 def test_extract_pdf_lines_normal(caplog):
     """It should split text into lines."""
     text = 'Line1\nLine2\nLine3'
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.DEBUG):
         lines = pdf_parser.extract_pdf_lines(text)
     assert lines == ['Line1', 'Line2', 'Line3']
     assert 'Extracted 3 lines' in caplog.text
@@ -131,7 +131,7 @@ def test_extract_pdf_lines_normal(caplog):
 
 def test_extract_pdf_lines_empty(caplog):
     """It should handle empty text."""
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.DEBUG):
         lines = pdf_parser.extract_pdf_lines('')
     assert lines == ['']
     assert 'Extracted 1 lines' in caplog.text
