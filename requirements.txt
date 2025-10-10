@@ -1,4 +1,4 @@
-google-api-python-client==2.183.0
+google-api-python-client==2.184.0
 gspread==6.2.1
 gspread_dataframe==4.0.0
 matplotlib==3.10.6
